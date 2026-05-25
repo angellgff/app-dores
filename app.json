@@ -4,7 +4,23 @@
     "slug": "coracampos",
     "version": "1.0.0",
     "web": {
-      "favicon": "./assets/logo-mobile.png"
+      "favicon": "./assets/logo-mobile.png",
+      "bundler": "metro",
+      "output": "static",
+      "name": "Dores",
+      "shortName": "Dores",
+      "description": "Encuentra los mejores restaurantes y servicios de delivery cerca de ti",
+      "themeColor": "#000000",
+      "backgroundColor": "#fcfdfd",
+      "display": "standalone",
+      "orientation": "portrait",
+      "scope": "/",
+      "startUrl": "/",
+      "icon": "./assets/logo-mobile.png",
+      "splash": {
+        "image": "./assets/splash.png",
+        "backgroundColor": "#fcfdfd"
+      }
     },
     "experiments": {
       "tsconfigPaths": true
