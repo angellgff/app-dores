@@ -6,7 +6,7 @@
     "web": {
       "favicon": "./assets/logo-mobile.png",
       "bundler": "metro",
-      "output": "static",
+      "output": "single",
       "name": "Dores",
       "shortName": "Dores",
       "description": "Encuentra los mejores restaurantes y servicios de delivery cerca de ti",
