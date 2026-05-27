@@ -1,0 +1,51 @@
+diff --git a/node_modules/react-dom/cjs/react-dom.development.js b/node_modules/react-dom/cjs/react-dom.development.js
+index a11d72f..a54a124 100644
+--- a/node_modules/react-dom/cjs/react-dom.development.js
++++ b/node_modules/react-dom/cjs/react-dom.development.js
+@@ -2802,6 +2802,21 @@ function createDangerousStringForStyles(styles) {
+  */
+ 
+ function setValueForStyles(node, styles) {
++  // PATCH (patch-package): NativeWind v4 (react-native-css-interop) can produce
++  // style arrays via objectMergeStyle:"toArray". React DOM's for..in over an array
++  // yields numeric keys ("0","1",…) causing:
++  //   "Failed to set an indexed property [0] on 'CSSStyleDeclaration'"
++  // Flatten arrays to a plain object before iterating.
++  if (Array.isArray(styles)) {
++    var _merged = {};
++    (function _flat(s) {
++      if (!s) return;
++      if (Array.isArray(s)) { s.forEach(_flat); return; }
++      if (typeof s === 'object') Object.assign(_merged, s);
++    })(styles);
++    styles = _merged;
++  }
++
+   var style = node.style;
+ 
+   for (var styleName in styles) {
+@@ -2809,6 +2824,11 @@ function setValueForStyles(node, styles) {
+       continue;
+     }
+ 
++    // Skip any numeric-string key that could slip through
++    if (isFinite(Number(styleName))) {
++      continue;
++    }
++
+     var isCustomProperty = styleName.indexOf('--') === 0;
+ 
+     {
+diff --git a/node_modules/react-dom/cjs/react-dom.production.min.js b/node_modules/react-dom/cjs/react-dom.production.min.js
+index f24ee10..ecd6bb5 100644
+--- a/node_modules/react-dom/cjs/react-dom.production.min.js
++++ b/node_modules/react-dom/cjs/react-dom.production.min.js
+@@ -46,7 +46,7 @@ var mb,nb=function(a){return"undefined"!==typeof MSApp&&MSApp.execUnsafeLocalFun
+ function ob(a,b){if(b){var c=a.firstChild;if(c&&c===a.lastChild&&3===c.nodeType){c.nodeValue=b;return}}a.textContent=b}
+ var pb={animationIterationCount:!0,aspectRatio:!0,borderImageOutset:!0,borderImageSlice:!0,borderImageWidth:!0,boxFlex:!0,boxFlexGroup:!0,boxOrdinalGroup:!0,columnCount:!0,columns:!0,flex:!0,flexGrow:!0,flexPositive:!0,flexShrink:!0,flexNegative:!0,flexOrder:!0,gridArea:!0,gridRow:!0,gridRowEnd:!0,gridRowSpan:!0,gridRowStart:!0,gridColumn:!0,gridColumnEnd:!0,gridColumnSpan:!0,gridColumnStart:!0,fontWeight:!0,lineClamp:!0,lineHeight:!0,opacity:!0,order:!0,orphans:!0,tabSize:!0,widows:!0,zIndex:!0,
+ zoom:!0,fillOpacity:!0,floodOpacity:!0,stopOpacity:!0,strokeDasharray:!0,strokeDashoffset:!0,strokeMiterlimit:!0,strokeOpacity:!0,strokeWidth:!0},qb=["Webkit","ms","Moz","O"];Object.keys(pb).forEach(function(a){qb.forEach(function(b){b=b+a.charAt(0).toUpperCase()+a.substring(1);pb[b]=pb[a]})});function rb(a,b,c){return null==b||"boolean"===typeof b||""===b?"":c||"number"!==typeof b||0===b||pb.hasOwnProperty(a)&&pb[a]?(""+b).trim():b+"px"}
+-function sb(a,b){a=a.style;for(var c in b)if(b.hasOwnProperty(c)){var d=0===c.indexOf("--"),e=rb(c,b[c],d);"float"===c&&(c="cssFloat");d?a.setProperty(c,e):a[c]=e}}var tb=A({menuitem:!0},{area:!0,base:!0,br:!0,col:!0,embed:!0,hr:!0,img:!0,input:!0,keygen:!0,link:!0,meta:!0,param:!0,source:!0,track:!0,wbr:!0});
++function sb(a,b){if(Array.isArray(b)){var f={};(function g(s){if(s){if(Array.isArray(s)){s.forEach(g);}else if(typeof s==='object'){Object.assign(f,s);}}})(b);b=f;}a=a.style;for(var c in b)if(b.hasOwnProperty(c)&&!(isFinite(Number(c)))){var d=0===c.indexOf("--"),e=rb(c,b[c],d);"float"===c&&(c="cssFloat");d?a.setProperty(c,e):a[c]=e}}var tb=A({menuitem:!0},{area:!0,base:!0,br:!0,col:!0,embed:!0,hr:!0,img:!0,input:!0,keygen:!0,link:!0,meta:!0,param:!0,source:!0,track:!0,wbr:!0});
+ function ub(a,b){if(b){if(tb[a]&&(null!=b.children||null!=b.dangerouslySetInnerHTML))throw Error(p(137,a));if(null!=b.dangerouslySetInnerHTML){if(null!=b.children)throw Error(p(60));if("object"!==typeof b.dangerouslySetInnerHTML||!("__html"in b.dangerouslySetInnerHTML))throw Error(p(61));}if(null!=b.style&&"object"!==typeof b.style)throw Error(p(62));}}
+ function vb(a,b){if(-1===a.indexOf("-"))return"string"===typeof b.is;switch(a){case "annotation-xml":case "color-profile":case "font-face":case "font-face-src":case "font-face-uri":case "font-face-format":case "font-face-name":case "missing-glyph":return!1;default:return!0}}var wb=null;function xb(a){a=a.target||a.srcElement||window;a.correspondingUseElement&&(a=a.correspondingUseElement);return 3===a.nodeType?a.parentNode:a}var yb=null,zb=null,Ab=null;
+ function Bb(a){if(a=Cb(a)){if("function"!==typeof yb)throw Error(p(280));var b=a.stateNode;b&&(b=Db(b),yb(a.stateNode,a.type,b))}}function Eb(a){zb?Ab?Ab.push(a):Ab=[a]:zb=a}function Fb(){if(zb){var a=zb,b=Ab;Ab=zb=null;Bb(a);if(b)for(a=0;a<b.length;a++)Bb(b[a])}}function Gb(a,b){return a(b)}function Hb(){}var Ib=!1;function Jb(a,b,c){if(Ib)return a(b,c);Ib=!0;try{return Gb(a,b,c)}finally{if(Ib=!1,null!==zb||null!==Ab)Hb(),Fb()}}

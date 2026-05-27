@@ -97,9 +97,9 @@ export default function Home() {
   };
 
   return (
-    <SafeAreaView>
+    <SafeAreaView style={{ flex: 1 }}>
       <ScrollView
-        style={{ backgroundColor: theme.backgroundColor }}
+        style={{ flex: 1, backgroundColor: theme.backgroundColor }}
         refreshControl={
           <RefreshControl
             refreshing={loading}

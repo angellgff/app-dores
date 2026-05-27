@@ -1,0 +1,114 @@
+diff --git a/node_modules/react-native-web/dist/cjs/modules/setValueForStyles/index.js b/node_modules/react-native-web/dist/cjs/modules/setValueForStyles/index.js
+index 5c5cbee..9221ab9 100644
+--- a/node_modules/react-native-web/dist/cjs/modules/setValueForStyles/index.js
++++ b/node_modules/react-native-web/dist/cjs/modules/setValueForStyles/index.js
+@@ -23,12 +23,38 @@ var _dangerousStyleValue = _interopRequireDefault(require("./dangerousStyleValue
+  * @param {DOMElement} node
+  * @param {object} styles
+  */
++function flattenStyleArray(styles) {
++  if (!Array.isArray(styles)) return styles;
++  var result = {};
++  for (var i = 0; i < styles.length; i++) {
++    var s = styles[i];
++    if (s && typeof s === 'object') {
++      Object.assign(result, Array.isArray(s) ? flattenStyleArray(s) : s);
++    }
++  }
++  return result;
++}
++
+ function setValueForStyles(node, styles) {
++  // PATCH (patch-package): Flatten style arrays before iteration.
++  // react-native-css-interop (NativeWind v4) produces style arrays when
++  // combining className + inline style. react-native-reanimated then passes
++  // those arrays to UIManager.updateView → setValueForStyles. Without this
++  // guard, `for...in` over an array yields numeric keys ("0", "1", …) and
++  // `node.style["0"] = value` throws:
++  //   "Failed to set an indexed property [0] on 'CSSStyleDeclaration':
++  //    Indexed property setter is not supported."
++  styles = flattenStyleArray(styles);
++
+   var style = node.style;
+   for (var styleName in styles) {
+     if (!styles.hasOwnProperty(styleName)) {
+       continue;
+     }
++    // Extra guard: skip any numeric-string key that slipped through
++    if (isFinite(Number(styleName))) {
++      continue;
++    }
+     var isCustomProperty = styleName.indexOf('--') === 0;
+     var styleValue = (0, _dangerousStyleValue.default)(styleName, styles[styleName], isCustomProperty);
+     if (styleName === 'float') {
+diff --git a/node_modules/react-native-web/dist/modules/createDOMProps/index.js b/node_modules/react-native-web/dist/modules/createDOMProps/index.js
+index 18f5e8b..dfe7663 100644
+--- a/node_modules/react-native-web/dist/modules/createDOMProps/index.js
++++ b/node_modules/react-native-web/dist/modules/createDOMProps/index.js
+@@ -813,6 +813,23 @@ var createDOMProps = (elementType, props, options) => {
+     domProps.className = className;
+   }
+   if (inlineStyle) {
++    // PATCH (patch-package): NativeWind v4 (react-native-css-interop) can produce
++    // a style array when combining className + inline style via objectMergeStyle:"toArray".
++    // styleq may pass that array through as inlineStyle[1]. React DOM's internal
++    // setValueForStyles then iterates over it with `for...in`, yielding numeric keys
++    // ("0", "1", …), and `element.style["0"] = value` throws:
++    //   "Failed to set an indexed property [0] on 'CSSStyleDeclaration':
++    //    Indexed property setter is not supported."
++    // Flatten any array before assigning to domProps.style.
++    if (Array.isArray(inlineStyle)) {
++      var _flat = {};
++      (function _flatten(s) {
++        if (!s) return;
++        if (Array.isArray(s)) { s.forEach(_flatten); return; }
++        if (typeof s === 'object') Object.assign(_flat, s);
++      })(inlineStyle);
++      inlineStyle = _flat;
++    }
+     domProps.style = inlineStyle;
+   }
+ 
+diff --git a/node_modules/react-native-web/dist/modules/setValueForStyles/index.js b/node_modules/react-native-web/dist/modules/setValueForStyles/index.js
+index ddd195d..ebc787b 100644
+--- a/node_modules/react-native-web/dist/modules/setValueForStyles/index.js
++++ b/node_modules/react-native-web/dist/modules/setValueForStyles/index.js
+@@ -19,12 +19,38 @@ import dangerousStyleValue from './dangerousStyleValue';
+  * @param {DOMElement} node
+  * @param {object} styles
+  */
++function flattenStyleArray(styles) {
++  if (!Array.isArray(styles)) return styles;
++  var result = {};
++  for (var i = 0; i < styles.length; i++) {
++    var s = styles[i];
++    if (s && typeof s === 'object') {
++      Object.assign(result, Array.isArray(s) ? flattenStyleArray(s) : s);
++    }
++  }
++  return result;
++}
++
+ function setValueForStyles(node, styles) {
++  // PATCH (patch-package): Flatten style arrays before iteration.
++  // react-native-css-interop (NativeWind v4) produces style arrays when
++  // combining className + inline style. react-native-reanimated then passes
++  // those arrays to UIManager.updateView → setValueForStyles. Without this
++  // guard, `for...in` over an array yields numeric keys ("0", "1", …) and
++  // `node.style["0"] = value` throws:
++  //   "Failed to set an indexed property [0] on 'CSSStyleDeclaration':
++  //    Indexed property setter is not supported."
++  styles = flattenStyleArray(styles);
++
+   var style = node.style;
+   for (var styleName in styles) {
+     if (!styles.hasOwnProperty(styleName)) {
+       continue;
+     }
++    // Extra guard: skip any numeric-string key that slipped through
++    if (isFinite(Number(styleName))) {
++      continue;
++    }
+     var isCustomProperty = styleName.indexOf('--') === 0;
+     var styleValue = dangerousStyleValue(styleName, styles[styleName], isCustomProperty);
+     if (styleName === 'float') {

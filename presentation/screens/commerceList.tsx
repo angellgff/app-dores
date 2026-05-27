@@ -33,10 +33,10 @@ export const CommerceList = () => {
 
   return (
     <SafeAreaProvider>
-      <SafeAreaView>
+      <SafeAreaView style={{ flex: 1 }}>
         <Text className="m-4 text-left text-2xl">¿Qué quieres comer hoy?</Text>
         <SearchWrapper>
-          <View className="self-center py-4" style={{ backgroundColor: theme.backgroundColor }}>
+          <View style={{ flex: 1, backgroundColor: theme.backgroundColor }}>
             <FlatList
               data={commerces}
               renderItem={renderCommerceItem}

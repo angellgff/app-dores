@@ -2,17 +2,63 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Aplicar Luckiest Guy globalmente en toda la aplicación */
+/* ─── Fuente global ─────────────────────────────────────────────────────────── */
 * {
   font-family: 'LuckiestGuy-Regular', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 }
 
-/* Estilos específicos para React Native Web */
-body {
+body,
+h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, textarea, select {
   font-family: 'LuckiestGuy-Regular', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
 }
 
-/* Asegurar que todos los elementos de texto usen la fuente */
-h1, h2, h3, h4, h5, h6, p, span, div, a, button, input, textarea, select {
-  font-family: 'LuckiestGuy-Regular', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
+/* ─── PWA / Web fixes ────────────────────────────────────────────────────────
+   Problemas resueltos:
+   1. iOS Safari momentum scroll: sin -webkit-overflow-scrolling el scroll
+      se siente "cortado" en iPhone/iPad.
+   2. dvh (dynamic viewport height): iOS Safari cambia 100vh al ocultar la
+      barra de direcciones. dvh siempre refleja la altura visual real.
+   3. tap-highlight: React Native Web maneja sus propios estados de touch;
+      el highlight azul nativo del browser es molesto en una PWA.
+   4. user-select: en desktop evita selección accidental de texto al hacer
+      click en botones/cards.
+   5. overscroll-behavior: evita que el pull-to-refresh del browser compita
+      con el RefreshControl de la app.
+──────────────────────────────────────────────────────────────────────────── */
+
+/* 1. Momentum scroll para iOS Safari en todos los contenedores scrollables */
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
+/* 2. Altura dinámica del viewport — corrige el 100vh de iOS Safari */
+html {
+  height: -webkit-fill-available;
+  height: 100dvh;
+}
+
+body {
+  min-height: -webkit-fill-available;
+  min-height: 100dvh;
+  /* overscroll-behavior: none evita que el bounce del browser
+     compita con el RefreshControl de React Native */
+  overscroll-behavior: none;
+}
+
+#root {
+  height: 100dvh;
+  height: -webkit-fill-available;
+}
+
+/* 3. Eliminar el tap highlight azul en mobile */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* 4. En desktop no se quiere selección de texto al hacer click */
+@media (pointer: fine) {
+  button, [role="button"] {
+    user-select: none;
+    -webkit-user-select: none;
+  }
 }

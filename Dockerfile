@@ -24,11 +24,15 @@ RUN apk add --no-cache \
     g++ \
     git
 
-# Copiar manifiestos de paquetes
+# Copiar manifiestos de paquetes + parches de node_modules
+# IMPORTANTE: patches/ debe estar presente antes de npm ci para que
+# el script postinstall (patch-package) pueda aplicar los parches.
 COPY package.json package-lock.json* yarn.lock* bun.lockb* ./
+COPY patches/ ./patches/
 
 # Instalar dependencias (usar npm para mayor compatibilidad en CI/Docker)
 # --legacy-peer-deps por incompatibilidades de peer deps en el ecosistema RN
+# postinstall ejecuta automáticamente: npx patch-package
 RUN npm ci --legacy-peer-deps
 
 # ─── Etapa 2: Build del bundle web ──────────────────────────────────────────
