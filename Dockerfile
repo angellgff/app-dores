@@ -96,8 +96,9 @@ RUN chown -R nginx:nginx /usr/share/nginx/html && \
 EXPOSE 80
 
 # Health check para Coolify
+# Health check para Coolify (Modificado: 127.0.0.1 y spider)
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget -qO- http://localhost:80/ || exit 1
+    CMD wget --no-verbose --tries=1 --spider http://127.0.0.1:80/ || exit 1
 
 # Comando de inicio
 CMD ["nginx", "-g", "daemon off;"]
