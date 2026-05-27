@@ -1,3 +1,7 @@
+// Polyfill: parchea CSSStyleDeclaration en web para evitar el error
+// "Failed to set an indexed property [0]" causado por react-native-css-interop.
+// Metro resuelve esto a polyfills.web.ts en web y polyfills.ts en nativo.
+import './polyfills';
 import { NavigationContainer } from '@react-navigation/native';
 import * as SplashScreen from 'expo-splash-screen';
 import { StatusBar } from 'expo-status-bar';
